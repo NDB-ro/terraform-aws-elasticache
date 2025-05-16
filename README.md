@@ -2,8 +2,6 @@
 
 Terraform module which creates AWS ElastiCache resources.
 
-[![SWUbanner](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner2-direct.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
-
 ## Usage
 
 See [`examples`](https://github.com/terraform-aws-modules/terraform-aws-elasticache/tree/master/examples) directory for working examples to reference:
@@ -268,6 +266,41 @@ module "elasticache" {
 }
 ```
 
+### Replica auto-scale mode
+
+This module supports configuring replica auto-scaling for Redis replication groups. Auto-scaling allows the number of replicas to scale dynamically based on workload demands.
+
+To enable replica auto-scaling, configure the following variables:
+
+- `enable_replica_autoscaling`: Set to `true` to enable replica auto-scaling.
+- `replica_autoscaling_min_capacity`: Minimum number of replicas to maintain.
+- `replica_autoscaling_max_capacity`: Maximum number of replicas to scale up to.
+- `replica_autoscaling_cpu_target`: Target CPU utilization percentage for scaling.
+- `replica_autoscaling_memory_target`: Target memory utilization percentage for scaling.
+
+Example:
+
+```hcl
+module "elasticache" {
+  source = "terraform-aws-modules/elasticache/aws"
+
+  replication_group_id               = "example-redis-replication-group"
+  enable_replica_autoscaling         = true
+  replica_autoscaling_min_capacity   = 1
+  replica_autoscaling_max_capacity   = 3
+  replica_autoscaling_cpu_target     = 60
+  replica_autoscaling_memory_target  = 60
+
+  engine_version = "7.1"
+  node_type      = "cache.t4g.small"
+
+  tags = {
+    Terraform   = "true"
+    Environment = "dev"
+  }
+}
+```
+
 ## Examples
 
 Examples codified under the [`examples`](https://github.com/terraform-aws-modules/terraform-aws-elasticache/tree/master/examples) are intended to give users references for how to use the module(s) as well as testing/validating changes to the source code of the module. If contributing to the project, please be sure to make any appropriate updates to the relevant examples to allow maintainers to test your changes and to keep the examples up to date for users. Thank you!
@@ -338,6 +371,7 @@ No modules.
 | <a name="input_create_subnet_group"></a> [create\_subnet\_group](#input\_create\_subnet\_group) | Determines whether the Elasticache subnet group will be created or not | `bool` | `true` | no |
 | <a name="input_data_tiering_enabled"></a> [data\_tiering\_enabled](#input\_data\_tiering\_enabled) | Enables data tiering. Data tiering is only supported for replication groups using the `r6gd` node type. This parameter must be set to true when using `r6gd` nodes | `bool` | `null` | no |
 | <a name="input_description"></a> [description](#input\_description) | User-created description for the replication group | `string` | `null` | no |
+| <a name="input_enable_replica_autoscaling"></a> [enable\_replica\_autoscaling](#input\_enable\_replica\_autoscaling) | Set to `true` to enable replica auto-scaling. | `bool` | `false` | no |
 | <a name="input_engine"></a> [engine](#input\_engine) | Name of the cache engine to be used for this cache cluster. Valid values are `memcached` or `redis` | `string` | `"redis"` | no |
 | <a name="input_engine_version"></a> [engine\_version](#input\_engine\_version) | Version number of the cache engine to be used. If not set, defaults to the latest version | `string` | `null` | no |
 | <a name="input_final_snapshot_identifier"></a> [final\_snapshot\_identifier](#input\_final\_snapshot\_identifier) | (Redis only) Name of your final cluster snapshot. If omitted, no final snapshot will be made | `string` | `null` | no |
@@ -363,6 +397,10 @@ No modules.
 | <a name="input_preferred_cache_cluster_azs"></a> [preferred\_cache\_cluster\_azs](#input\_preferred\_cache\_cluster\_azs) | List of EC2 availability zones in which the replication group's cache clusters will be created. The order of the availability zones in the list is considered. The first item in the list will be the primary node. Ignored when updating | `list(string)` | `[]` | no |
 | <a name="input_preferred_outpost_arn"></a> [preferred\_outpost\_arn](#input\_preferred\_outpost\_arn) | (Required if `outpost_mode` is specified) The outpost ARN in which the cache cluster will be created | `string` | `null` | no |
 | <a name="input_replicas_per_node_group"></a> [replicas\_per\_node\_group](#input\_replicas\_per\_node\_group) | Number of replica nodes in each node group. Changing this number will trigger a resizing operation before other settings modifications. Valid values are 0 to 5 | `number` | `null` | no |
+| <a name="input_replica_autoscaling_cpu_target"></a> [replica\_autoscaling\_cpu\_target](#input\_replica\_autoscaling\_cpu\_target) | Target CPU utilization percentage for scaling. | `number` | `60` | no |
+| <a name="input_replica_autoscaling_max_capacity"></a> [replica\_autoscaling\_max\_capacity](#input\_replica\_autoscaling\_max\_capacity) | Maximum number of replicas to scale up to. | `number` | `3` | no |
+| <a name="input_replica_autoscaling_memory_target"></a> [replica\_autoscaling\_memory\_target](#input\_replica\_autoscaling\_memory\_target) | Target memory utilization percentage for scaling. | `number` | `60` | no |
+| <a name="input_replica_autoscaling_min_capacity"></a> [replica\_autoscaling\_min\_capacity](#input\_replica\_autoscaling\_min\_capacity) | Minimum number of replicas to maintain. | `number` | `1` | no |
 | <a name="input_replication_group_id"></a> [replication\_group\_id](#input\_replication\_group\_id) | Replication group identifier. When `create_replication_group` is set to `true`, this is the ID assigned to the replication group created. When `create_replication_group` is set to `false`, this is the ID of an externally created replication group | `string` | `null` | no |
 | <a name="input_security_group_description"></a> [security\_group\_description](#input\_security\_group\_description) | Description of the security group created | `string` | `null` | no |
 | <a name="input_security_group_ids"></a> [security\_group\_ids](#input\_security\_group\_ids) | One or more VPC security groups associated with the cache cluster | `list(string)` | `[]` | no |
@@ -401,6 +439,11 @@ No modules.
 | <a name="output_global_replication_group_node_groups"></a> [global\_replication\_group\_node\_groups](#output\_global\_replication\_group\_node\_groups) | Set of node groups (shards) on the global replication group |
 | <a name="output_parameter_group_arn"></a> [parameter\_group\_arn](#output\_parameter\_group\_arn) | The AWS ARN associated with the parameter group |
 | <a name="output_parameter_group_id"></a> [parameter\_group\_id](#output\_parameter\_group\_id) | The ElastiCache parameter group name |
+| <a name="output_replica_autoscaling_enabled"></a> [replica\_autoscaling\_enabled](#output\_replica\_autoscaling\_enabled) | Whether replica auto-scaling is enabled. |
+| <a name="output_replica_autoscaling_min_capacity"></a> [replica\_autoscaling\_min\_capacity](#output\_replica\_autoscaling\_min\_capacity) | Minimum number of replicas configured for auto-scaling. |
+| <a name="output_replica_autoscaling_max_capacity"></a> [replica\_autoscaling\_max\_capacity](#output\_replica\_autoscaling\_max\_capacity) | Maximum number of replicas configured for auto-scaling. |
+| <a name="output_replica_autoscaling_cpu_target"></a> [replica\_autoscaling\_cpu\_target](#output\_replica\_autoscaling\_cpu\_target) | Target CPU utilization percentage for auto-scaling. |
+| <a name="output_replica_autoscaling_memory_target"></a> [replica\_autoscaling\_memory\_target](#output\_replica\_autoscaling\_memory\_target) | Target memory utilization percentage for auto-scaling. |
 | <a name="output_replication_group_arn"></a> [replication\_group\_arn](#output\_replication\_group\_arn) | ARN of the created ElastiCache Replication Group |
 | <a name="output_replication_group_coniguration_endpoint_address"></a> [replication\_group\_coniguration\_endpoint\_address](#output\_replication\_group\_coniguration\_endpoint\_address) | Address of the replication group configuration endpoint when cluster mode is enabled |
 | <a name="output_replication_group_engine_version_actual"></a> [replication\_group\_engine\_version\_actual](#output\_replication\_group\_engine\_version\_actual) | Because ElastiCache pulls the latest minor or patch for a version, this attribute returns the running version of the cache engine |
