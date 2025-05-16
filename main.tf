@@ -119,6 +119,10 @@ resource "aws_elasticache_replication_group" "this" {
   user_group_ids              = var.user_group_ids
 
   tags = local.tags
+
+  lifecycle {
+    ignore_changes = var.enable_replica_autoscaling ? ["replicas_per_node_group"] : []
+  }
 }
 
 resource "aws_appautoscaling_target" "elasticache_replica_scaling" {
