@@ -121,6 +121,62 @@ resource "aws_elasticache_replication_group" "this" {
   tags = local.tags
 }
 
+resource "aws_appautoscaling_target" "elasticache_replica_scaling" {
+  count = var.enable_replica_autoscaling ? 1 : 0
+
+  service_namespace  = "elasticache"
+  resource_id        = "replication-group/${var.replication_group_id}"
+  scalable_dimension = "elasticache:replication-group:ReplicaCount"
+  min_capacity       = var.replica_autoscaling_min_capacity
+  max_capacity       = var.replica_autoscaling_max_capacity
+
+  tags = local.tags
+}
+
+resource "aws_appautoscaling_policy" "replica_cpu_scaling" {
+  count = var.enable_replica_autoscaling ? 1 : 0
+
+  name               = "elasticache-replica-cpu-scaling"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.elasticache_replica_scaling[0].resource_id
+  scalable_dimension = "elasticache:replication-group:ReplicaCount"
+  service_namespace  = "elasticache"
+
+  target_tracking_scaling_policy_configuration {
+    customized_metric_specification {
+      metric_name = "EngineCPUUtilization"
+      namespace   = "AWS/ElastiCache"
+      statistic   = "Average"
+      unit        = "Percent"
+    }
+    target_value         = var.replica_autoscaling_cpu_target
+    scale_in_cooldown    = 300
+    scale_out_cooldown   = 300
+  }
+}
+
+resource "aws_appautoscaling_policy" "replica_memory_scaling" {
+  count = var.enable_replica_autoscaling ? 1 : 0
+
+  name               = "elasticache-replica-memory-scaling"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.elasticache_replica_scaling[0].resource_id
+  scalable_dimension = "elasticache:replication-group:ReplicaCount"
+  service_namespace  = "elasticache"
+
+  target_tracking_scaling_policy_configuration {
+    customized_metric_specification {
+      metric_name = "DatabaseCapacityUsageCountedForEvictPercentage"
+      namespace   = "AWS/ElastiCache"
+      statistic   = "Average"
+      unit        = "Percent"
+    }
+    target_value         = var.replica_autoscaling_memory_target
+    scale_in_cooldown    = 300
+    scale_out_cooldown   = 300
+  }
+}
+
 ################################################################################
 # Global Replication Group
 ################################################################################
