@@ -121,7 +121,7 @@ resource "aws_elasticache_replication_group" "this" {
   tags = local.tags
 
   lifecycle {
-    ignore_changes = var.enable_replica_autoscaling ? ["replicas_per_node_group"] : []
+    ignore_changes = ["replicas_per_node_group"]
   }
 }
 
