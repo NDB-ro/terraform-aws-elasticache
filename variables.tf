@@ -293,6 +293,36 @@ variable "cluster_mode_enabled" {
   default     = false
 }
 
+variable "enable_replica_autoscaling" {
+  description = "Enable Application Auto Scaling for Redis replicas"
+  type        = bool
+  default     = false
+}
+
+variable "replica_autoscaling_min_capacity" {
+  description = "Minimum number of replicas per node group"
+  type        = number
+  default     = null
+}
+
+variable "replica_autoscaling_max_capacity" {
+  description = "Maximum number of replicas per node group"
+  type        = number
+  default     = null
+}
+
+variable "replica_autoscaling_cpu_target" {
+  description = "Target average CPU utilization percentage"
+  type        = number
+  default     = null
+}
+
+variable "replica_autoscaling_memory_target" {
+  description = "Target average memory utilization percentage"
+  type        = number
+  default     = null
+}
+
 ################################################################################
 # Global Replication Group
 ################################################################################
