@@ -130,7 +130,7 @@ resource "aws_appautoscaling_target" "elasticache_replica_scaling" {
 
   service_namespace  = "elasticache"
   resource_id        = "replication-group/${var.replication_group_id}"
-  scalable_dimension = "elasticache:replication-group:ReplicaCount"
+  scalable_dimension = "elasticache:replication-group:Replicas"
   min_capacity       = var.replica_autoscaling_min_capacity
   max_capacity       = var.replica_autoscaling_max_capacity
 
@@ -143,7 +143,7 @@ resource "aws_appautoscaling_policy" "replica_cpu_scaling" {
   name               = "elasticache-replica-cpu-scaling"
   policy_type        = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.elasticache_replica_scaling[0].resource_id
-  scalable_dimension = "elasticache:replication-group:ReplicaCount"
+  scalable_dimension = "elasticache:replication-group:Replicas"
   service_namespace  = "elasticache"
 
   target_tracking_scaling_policy_configuration {
@@ -165,7 +165,7 @@ resource "aws_appautoscaling_policy" "replica_memory_scaling" {
   name               = "elasticache-replica-memory-scaling"
   policy_type        = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.elasticache_replica_scaling[0].resource_id
-  scalable_dimension = "elasticache:replication-group:ReplicaCount"
+  scalable_dimension = "elasticache:replication-group:Replicas"
   service_namespace  = "elasticache"
 
   target_tracking_scaling_policy_configuration {
