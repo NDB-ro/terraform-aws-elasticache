@@ -268,7 +268,10 @@ module "elasticache" {
 
 ### Replica auto-scale mode
 
-This module supports configuring replica auto-scaling for Redis replication groups. Auto-scaling allows the number of replicas to scale dynamically based on workload demands.
+This module supports configuring replica auto-scaling for Redis replication groups. Auto-scaling allows the number of replicas to scale dynamically based on workload demands. 
+
+**Note:** Replica auto-scaling is supported only with specific instance types. Refer to the [AWS ElastiCache documentation](https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/AutoScaling.html#AutoScaling-Prerequisites) for the list of supported instance types.
+
 
 To enable replica auto-scaling, configure the following variables:
 
