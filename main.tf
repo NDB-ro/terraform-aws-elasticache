@@ -120,9 +120,9 @@ resource "aws_elasticache_replication_group" "this" {
 
   tags = local.tags
 
-  lifecycle {
-    ignore_changes = ["replicas_per_node_group"]
-  }
+  # lifecycle { # good for feature autoscaling but when all clusters uses that
+  #   ignore_changes = ["replicas_per_node_group"]
+  # }
 }
 
 resource "aws_appautoscaling_target" "elasticache_replica_scaling" {
